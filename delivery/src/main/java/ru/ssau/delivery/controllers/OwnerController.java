@@ -17,6 +17,7 @@ import ru.ssau.delivery.repository.DishRepository;
 import ru.ssau.delivery.repository.RestaurantRepository;
 import ru.ssau.delivery.service.UserService;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -33,8 +34,7 @@ public class OwnerController {
     @PreAuthorize("hasRole('REST')")
     @PostMapping("/restaurant/new")
     public ResponseEntity<?> createNewRestaurant(Authentication authentication, @RequestBody CreateRestaurantRequest request) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User user = userService.findUserByIdentifier(userDetails.getUsername());
+        User user = obtainOwner(authentication);
         long ownerId = user.getId();
 
         Restaurant newRestaurant = new Restaurant();
@@ -62,8 +62,7 @@ public class OwnerController {
             @PathVariable("restaurant_id") Long id,
             @RequestParam(name = "open", defaultValue = "false") boolean isOpen
     ) {
-        String username = ((UserDetails) authentication.getPrincipal()).getUsername();
-        User user = userService.findUserByIdentifier(username);
+        User user = obtainOwner(authentication);
         Optional<Restaurant> byId = restaurantRepository.findById(id);
         if (byId.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
@@ -77,17 +76,22 @@ public class OwnerController {
         return ResponseEntity.ok(new MessageResponse("Restaurant with id: " + id + " was successfully opened."));
     }
 
+    @PreAuthorize("hasRole('REST')")
     @PostMapping("/restaurants/{restaurant_id}/addDish")
     public ResponseEntity<?> addDish(
             Authentication authentication,
             @PathVariable("restaurant_id") Long id,
             @RequestBody CreateDishRequest request
     ) {
+        User user = obtainOwner(authentication);
         Optional<Restaurant> byId = restaurantRepository.findById(id);
         if (byId.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
         }
         Restaurant r = byId.get();
+        if (!r.getOwnerId().equals(user.getId())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
+        }
         Dish d = new Dish();
         d.setRestaurant(r);
         d.setName(request.getName());
@@ -96,5 +100,39 @@ public class OwnerController {
         d.setDescription(request.getDescription());
         d = dishRepository.saveAndFlush(d);
         return ResponseEntity.ok(new MessageResponse("Dish was successfully added in Restaurant with restaurant_id: " + id + ", dish_id: " + d.getId()));
+    }
+
+    @PreAuthorize("hasRole('REST')")
+    @PostMapping("/restaurants/{restaurant_id}/addDishes")
+    public ResponseEntity<?> addDishes(
+            Authentication authentication,
+            @PathVariable("restaurant_id") Long id,
+            @RequestBody List<CreateDishRequest> request
+    ) {
+        User user = obtainOwner(authentication);
+        Optional<Restaurant> byId = restaurantRepository.findById(id);
+        if (byId.isEmpty()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
+        }
+        Restaurant r = byId.get();
+        if (!r.getOwnerId().equals(user.getId())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
+        }
+        for (var dish :
+                request) {
+            Dish d = new Dish();
+            d.setRestaurant(r);
+            d.setName(dish.getName());
+            d.setAmount(dish.getAmount());
+            d.setPrice(dish.getPrice());
+            d.setDescription(dish.getDescription());
+            dishRepository.saveAndFlush(d);
+        }
+        return ResponseEntity.ok(new MessageResponse("Dishes was successfully added in Restaurant with restaurant_id: " + id));
+    }
+
+    private User obtainOwner(Authentication authentication) {
+        String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+        return userService.findUserByIdentifier(username);
     }
 }

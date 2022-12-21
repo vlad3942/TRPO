@@ -1,5 +1,6 @@
 package ru.ssau.delivery.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ public class Restaurant {
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "restaurant")
     private Set<Dish> dishes;
 

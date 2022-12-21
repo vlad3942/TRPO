@@ -9,6 +9,7 @@ import ru.ssau.delivery.models.*;
 import ru.ssau.delivery.pojo.MessageResponse;
 import ru.ssau.delivery.pojo.SignupRequest;
 import ru.ssau.delivery.repository.RestaurantRepository;
+import ru.ssau.delivery.repository.RoleRepository;
 import ru.ssau.delivery.repository.UserRepository;
 
 import java.util.Collections;
@@ -22,6 +23,7 @@ import java.util.Set;
 public class AdminController {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final RestaurantRepository restaurantRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -54,9 +56,12 @@ public class AdminController {
                 signupRequest.getPhone(),
                 passwordEncoder.encode(signupRequest.getPassword()));
 
-        Set<Role> roles = Collections.singleton(new Role(ERole.ROLE_REST));
+        Role userRole = roleRepository
+                .findByName(ERole.ROLE_REST)
+                .orElseThrow(() -> new RuntimeException("Error, Role REST is not found"));
+        Set<Role> roles = Collections.singleton(userRole);
         user.setRoles(roles);
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
         return ResponseEntity.ok(new MessageResponse("Restaurant owner CREATED"));
     }
 

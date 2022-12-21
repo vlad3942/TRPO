@@ -1,0 +1,19 @@
+<div class="py-4 px-6 border rounded flex items-center flex-col mb-2">
+  <img src="https://chefrestoran.ru/wp-content/uploads/2018/10/532869931.jpg" [alt]="dish.name" class="w-1/6 mb-2">
+  <h2 class="mb-2 text-md text-center">{{ dish.name }}</h2>
+  <p>Цена: <span class="font-bold">{{ dish.price | currency:'RUB' }}</span></p>
+
+  <button
+    class="border py-2 px-4 rounded"
+    [ngClass]="{
+      'bg-yellow-400': !details,
+      'bg-blue-400': details
+    }"
+    (click)="details = !details"
+  > {{ details ? 'Скрыть' : 'Показать' }} детали</button>
+
+  <div *ngIf="details">
+    <p> <span class="font-bold">Описание: </span> {{ dish.description }}</p>
+  </div>
+
+</div>
