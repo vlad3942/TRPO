@@ -1,0 +1,15 @@
+<h1 class="font-bold mb-2 text-center text-lg">{{ title | titlecase }}</h1>
+
+<input
+  type="text"
+  class="mb-2 border py-2 px-4 w-full"
+  placeholder="Поиск по списку..."
+  [(ngModel)]="term"
+>
+
+<p *ngIf="loading" class="text-center text-lg">Loading...</p>
+
+<div *ngIf="rests$ | async as rests">
+  <app-restaurant *ngFor="let rest of rests | searchRest:term" [rest] = "rest"
+  ></app-restaurant>
+</div>

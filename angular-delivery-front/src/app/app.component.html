@@ -1,15 +1,7 @@
+<app-global-error></app-global-error>
+
 <div class="max-w-2xl container mx-auto pt-5">
 
-  <h1 class="font-bold mb-2 text-center text-lg">{{ title | titlecase }}</h1>
-
-<!--  <app-dish-->
-<!--    [dish]="dishes[0]"-->
-<!--  ></app-dish>-->
-<!--  <app-dish-->
-<!--    [dish]="dishes[1]"-->
-<!--  ></app-dish>-->
-
-  <app-dish *ngFor="let dish of dishes" [dish] = "dish"
-  ></app-dish>
+  <router-outlet></router-outlet>
 
 </div>

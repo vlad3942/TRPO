@@ -1,0 +1,30 @@
+<div class="py-4 px-6 border rounded flex items-center flex-col mb-2">
+  <img src="https://chefrestoran.ru/wp-content/uploads/2018/10/532869931.jpg" [alt]="rest.name" class="w-1/6 mb-2">
+  <h2 class="mb-2 text-md text-center">{{ rest.name }}</h2>
+  <p>Открыт с
+    <span class="font-bold">{{ this.openDate.getHours() + ':' + this.openDate.getMinutes() }}</span>
+    до
+    <span class="font-bold">{{ this.closeDate.getHours() + ':' + this.closeDate.getMinutes() }}</span>
+  </p>
+  <p>Рейтинг: {{ rest.rating | number:'.2'}}</p>
+
+  <button
+    class="border py-2 px-4 rounded"
+    [ngClass]="{
+      'bg-yellow-400': !details,
+      'bg-blue-400': details
+    }"
+    (click)="details = !details"
+  > {{ details ? 'Скрыть' : 'Показать' }} детали</button>
+
+  <div *ngIf="details">
+    <p> <span class="font-bold">Адрес: </span> {{ rest.address }}</p>
+  </div>
+
+  <button
+    class="border py-2 px-4 rounded bg-yellow-400"
+    routerLink="/dishes"
+    (click)="restService.restId = this.rest.id"
+  >Заказать здесь</button>
+
+</div>
