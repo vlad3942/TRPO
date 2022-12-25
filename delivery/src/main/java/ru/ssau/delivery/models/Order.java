@@ -22,7 +22,7 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courier_id")
-    private Restaurant courier;
+    private Courier courier;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(name = "status",

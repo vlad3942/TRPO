@@ -1,0 +1,32 @@
+<nav class="absolute top-0 right-0 px-5 left-0 h-[50px] flex justify-between items-center text-white bg-gray-500">
+  <h1 class="font-bold">Delivery Service</h1>
+
+  <span>
+    <a class="mr-4" routerLink="/">Список ресторанов</a>
+    <a class="mr-4" *ngIf="!isLoggedIn" routerLink="/login">Войти</a>
+    <a class="mr-4" *ngIf="!isLoggedIn" routerLink="/register">Зарегистрироваться</a>
+    <a class="mr-4" *ngIf="isLoggedIn" routerLink="/profile">Профиль</a>
+    <a class="mr-4" *ngIf="isLoggedIn" routerLink="/orders">Список заказов</a>
+    <a class="mr-4" *ngIf="isLoggedIn" (click)="logout()" href="#">Выйти</a>
+
+
+<!--    <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn">-->
+<!--      <li class="nav-item">-->
+<!--        <a href="/register" class="nav-link" routerLink="register">Зарегистрироваться</a>-->
+<!--      </li>-->
+<!--      <li class="nav-item">-->
+<!--        <a href="/login" class="nav-link" routerLink="login">Войти</a>-->
+<!--      </li>-->
+<!--    </ul>-->
+
+<!--    <ul class="navbar-nav ml-auto" *ngIf="isLoggedIn">-->
+<!--      <li class="nav-item">-->
+<!--        <a href="/profile" class="nav-link" routerLink="profile">{{ login }}</a>-->
+<!--      </li>-->
+<!--      <li class="nav-item">-->
+<!--        <a href class="nav-link" (click)="logout()">Logout</a>-->
+<!--      </li>-->
+<!--    </ul>-->
+  </span>
+
+</nav>

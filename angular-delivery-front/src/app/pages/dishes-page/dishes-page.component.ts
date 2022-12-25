@@ -4,6 +4,8 @@ import {IDish} from "../../models/dish";
 import {DishService} from "../../services/dish.service";
 import {TokenStorageService} from "../../services/token-storage.service";
 import {ModalService} from "../../services/modal.service";
+import {RestaurantService} from "../../services/restaurant.service";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-dishes-page',
@@ -15,17 +17,21 @@ export class DishesPageComponent {
   dishes$: Observable<IDish[]>
   loading = false
   term = ''
+  restaurantId: number
   constructor(
     private dishService: DishService,
-    private tokenService: TokenStorageService,
-    public modalService: ModalService
+    private restaurantService: RestaurantService,
+    public modalService: ModalService,
+    private route: ActivatedRoute
   ) {
   }
 
   ngOnInit(): void {
     this.loading = true
-    let token: string = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaWF0IjoxNjcxNzQxMDE1LCJleHAiOjE2NzE4Mjc0MTV9.PRc_HDpnJjSeP4x0fDCtkpgiqJiQWlo0yuDCFINFrEHCHNH8Up1wRL_8ABFf30u6qzHU4mul504LGuA5BGgN_g';
-    this.tokenService.saveToken(token);
-    this.dishes$ = this.dishService.getAllFromRest(1).pipe(tap(() => {this.loading = false}));
+    this.route.params.subscribe((params) => {
+      this.restaurantId = params['id'] as number
+    })
+    //this.restaurantId = this.restaurantService.restId
+    this.dishes$ = this.dishService.getAllFromRest(this.restaurantId).pipe(tap(() => {this.loading = false}));
   }
 }

@@ -8,15 +8,15 @@ import {IRest} from "../models/restaurant";
 })
 export class RestaurantService {
 
-  restId: number
+  public restId: number
   constructor(private http: HttpClient) { }
 
   getAll(): Observable<IRest[]> {
-    return this.http.get<IRest[]>('http://localhost:8080/api/user/restaurants')
+    return this.http.get<IRest[]>('http://localhost:8080/api/public/restaurants')
   }
 
   getSlice(limit: number, skip: number): Observable<IRest[]> {
-    return this.http.get<IRest[]>('http://localhost:8080/api/user/restaurants', {
+    return this.http.get<IRest[]>('http://localhost:8080/api/public/restaurants', {
       params: new HttpParams({
         fromObject: {
           limit: limit,

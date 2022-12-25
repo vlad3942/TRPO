@@ -7,22 +7,19 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import ru.ssau.delivery.models.Dish;
-import ru.ssau.delivery.models.Restaurant;
-import ru.ssau.delivery.models.User;
-import ru.ssau.delivery.pojo.CreateDishRequest;
-import ru.ssau.delivery.pojo.CreateRestaurantRequest;
-import ru.ssau.delivery.pojo.MessageResponse;
-import ru.ssau.delivery.repository.DishRepository;
-import ru.ssau.delivery.repository.RestaurantRepository;
+import ru.ssau.delivery.models.*;
+import ru.ssau.delivery.pojo.*;
+import ru.ssau.delivery.repository.*;
 import ru.ssau.delivery.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
 @RestController
+@PreAuthorize("hasRole('REST')")
 @RequestMapping("/api/rest")
 @RequiredArgsConstructor
 public class OwnerController {
@@ -30,11 +27,14 @@ public class OwnerController {
     private final UserService userService;
     private final RestaurantRepository restaurantRepository;
     private final DishRepository dishRepository;
+    private final OrderRepository orderRepository;
+    private final OrderStatusRepository orderStatusRepository;
 
-    @PreAuthorize("hasRole('REST')")
+    private final DishesInOrderRepository dishesInOrderRepository;
+
     @PostMapping("/restaurant/new")
     public ResponseEntity<?> createNewRestaurant(Authentication authentication, @RequestBody CreateRestaurantRequest request) {
-        User user = obtainOwner(authentication);
+        User user = userService.obtainUser(authentication);
         long ownerId = user.getId();
 
         Restaurant newRestaurant = new Restaurant();
@@ -55,43 +55,33 @@ public class OwnerController {
         }
     }
 
-    @PreAuthorize("hasRole('REST')")
     @GetMapping("/restaurant/{restaurant_id}")
     public ResponseEntity<?> setConfirmRestaurantById(
             Authentication authentication,
             @PathVariable("restaurant_id") Long id,
             @RequestParam(name = "open", defaultValue = "false") boolean isOpen
     ) {
-        User user = obtainOwner(authentication);
-        Optional<Restaurant> byId = restaurantRepository.findById(id);
-        if (byId.isEmpty()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
+        var res = obtainRestaurant(authentication, id);
+        if (res.entity != null) {
+            return res.entity;
         }
-        Restaurant r = byId.get();
-        if (!r.getOwnerId().equals(user.getId())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
-        }
+        Restaurant r = res.restaurant;
         r.setIsOpen(isOpen);
         restaurantRepository.save(r);
         return ResponseEntity.ok(new MessageResponse("Restaurant with id: " + id + " was successfully opened."));
     }
 
-    @PreAuthorize("hasRole('REST')")
     @PostMapping("/restaurants/{restaurant_id}/addDish")
     public ResponseEntity<?> addDish(
             Authentication authentication,
             @PathVariable("restaurant_id") Long id,
             @RequestBody CreateDishRequest request
     ) {
-        User user = obtainOwner(authentication);
-        Optional<Restaurant> byId = restaurantRepository.findById(id);
-        if (byId.isEmpty()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
+        var res = obtainRestaurant(authentication, id);
+        if (res.entity != null) {
+            return res.entity;
         }
-        Restaurant r = byId.get();
-        if (!r.getOwnerId().equals(user.getId())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
-        }
+        Restaurant r = res.restaurant;
         Dish d = new Dish();
         d.setRestaurant(r);
         d.setName(request.getName());
@@ -102,22 +92,17 @@ public class OwnerController {
         return ResponseEntity.ok(new MessageResponse("Dish was successfully added in Restaurant with restaurant_id: " + id + ", dish_id: " + d.getId()));
     }
 
-    @PreAuthorize("hasRole('REST')")
     @PostMapping("/restaurants/{restaurant_id}/addDishes")
     public ResponseEntity<?> addDishes(
             Authentication authentication,
             @PathVariable("restaurant_id") Long id,
             @RequestBody List<CreateDishRequest> request
     ) {
-        User user = obtainOwner(authentication);
-        Optional<Restaurant> byId = restaurantRepository.findById(id);
-        if (byId.isEmpty()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
+        var res = obtainRestaurant(authentication, id);
+        if (res.entity != null) {
+            return res.entity;
         }
-        Restaurant r = byId.get();
-        if (!r.getOwnerId().equals(user.getId())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
-        }
+        Restaurant r = res.restaurant;
         for (var dish :
                 request) {
             Dish d = new Dish();
@@ -131,8 +116,67 @@ public class OwnerController {
         return ResponseEntity.ok(new MessageResponse("Dishes was successfully added in Restaurant with restaurant_id: " + id));
     }
 
-    private User obtainOwner(Authentication authentication) {
-        String username = ((UserDetails) authentication.getPrincipal()).getUsername();
-        return userService.findUserByIdentifier(username);
+    @GetMapping("/restaurants/{restaurant_id}/get-not-confirmed-orders")
+    public ResponseEntity<?> getNotConfirmed(Authentication authentication, @PathVariable("restaurant_id") Long id) {
+        var res = obtainRestaurant(authentication, id);
+        if (res.entity != null) {
+            return res.entity;
+        }
+        Restaurant r = res.restaurant;
+
+        OrderStatus status = orderStatusRepository.findByName(EOrderStatus.WAITING_CONFIRMATION)
+                .orElseThrow(() -> new IllegalStateException("Status s not found in database."));
+        List<Order> unconfirmedOrders = orderRepository.findAllByRestaurantAndStatus(r, status);
+        List<OrderResponse> orderResponses = OrderResponse.convert(unconfirmedOrders);
+        orderResponses.forEach(orderResponse -> {
+            List<DishesInOrder> dios = dishesInOrderRepository.findAllByOrderId(orderResponse.getId());
+            orderResponse.setDishes(
+                    dios.stream().map(DishInfo::convert)
+                            .collect(Collectors.toList()));
+        });
+        return ResponseEntity.ok(orderResponses);
+    }
+
+    @GetMapping("/restaurants/{restaurant_id}/confirm-order/{order_id}")
+    public ResponseEntity<?> confirmOrder(
+            Authentication authentication,
+            @PathVariable("order_id") Long orderId,
+            @PathVariable("restaurant_id") Long restaurantId
+    ) {
+        var res = obtainRestaurant(authentication, restaurantId);
+        if (res.entity != null) {
+            return res.entity;
+        }
+        Restaurant restaurant = res.restaurant;
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        if (!order.getRestaurant().getId().equals(restaurant.getId())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Confirmation Error - Permission Denied."));
+        }
+        var status = orderStatusRepository.findByName(EOrderStatus.WAITING_COURIER).orElseThrow();
+        order.setStatus(status);
+        Order result = orderRepository.saveAndFlush(order);
+        return ResponseEntity.ok(new MessageResponse("Order with id: " + result.getId() + " was confirmed successfully."));
+    }
+
+    private RestObtainEntity obtainRestaurant(Authentication authentication, Long id) {
+        RestObtainEntity response = new RestObtainEntity();
+        User user = userService.obtainUser(authentication);
+        Optional<Restaurant> byId = restaurantRepository.findById(id);
+        if (byId.isEmpty()) {
+            response.entity = ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
+            return response;
+        }
+        Restaurant r = byId.get();
+        if (!r.getOwnerId().equals(user.getId())) {
+            response.entity = ResponseEntity.badRequest().body(new MessageResponse("Error: can not found restaurant by id - " + id));
+            return response;
+        }
+        response.restaurant = r;
+        return response;
+    }
+
+    private static class RestObtainEntity {
+        private ResponseEntity<?> entity;
+        private Restaurant restaurant;
     }
 }

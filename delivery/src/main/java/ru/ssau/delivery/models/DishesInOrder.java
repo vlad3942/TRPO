@@ -6,13 +6,11 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "dishes_in_order", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "order_id"),
-        @UniqueConstraint(columnNames = "dish_id")
-})
+@Table(name = "dishes_in_order")
 public class DishesInOrder {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)

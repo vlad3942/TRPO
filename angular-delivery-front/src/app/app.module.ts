@@ -17,6 +17,9 @@ import {RouterOutlet} from "@angular/router";
 import {AppRoutingModule} from "./app-routing.module";
 import { RestaurantComponent } from './components/restaurant/restaurant.component';
 import {SearchRestaurantPipe} from "./pipes/search-restaurant.pipe";
+import {LoginPageComponent} from "./pages/login-page/login-page.component";
+import { NavigationComponent } from './components/navigation/navigation.component';
+import { RegisterPageComponent } from './pages/register-page/register-page.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +33,10 @@ import {SearchRestaurantPipe} from "./pipes/search-restaurant.pipe";
     DishesPageComponent,
     RestaurantsPageComponent,
     RestaurantComponent,
-    SearchRestaurantPipe
+    SearchRestaurantPipe,
+    LoginPageComponent,
+    NavigationComponent,
+    RegisterPageComponent
   ],
   imports: [
     BrowserModule,
@@ -43,4 +49,6 @@ import {SearchRestaurantPipe} from "./pipes/search-restaurant.pipe";
   providers: [authInterceptorProviders],
   bootstrap: [AppComponent]
 })
+// @ts-ignore
 export class AppModule { }
+// @ts-ignore

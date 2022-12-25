@@ -1,0 +1,17 @@
+.col-md-12 {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.card-container {
+  padding: 30px 30px 10px 30px;
+  margin-top: 20px;
+  width: 350px;
+}
+
+.profile-img-card {
+  width: 198px;
+  align-self: center;
+  margin-bottom: 20px;
+}

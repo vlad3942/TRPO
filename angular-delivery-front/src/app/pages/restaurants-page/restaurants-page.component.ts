@@ -22,8 +22,6 @@ export class RestaurantsPageComponent {
 
   ngOnInit(): void {
     this.loading = true
-    let token: string = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiaWF0IjoxNjcxNzQxMDE1LCJleHAiOjE2NzE4Mjc0MTV9.PRc_HDpnJjSeP4x0fDCtkpgiqJiQWlo0yuDCFINFrEHCHNH8Up1wRL_8ABFf30u6qzHU4mul504LGuA5BGgN_g';
-    this.tokenService.saveToken(token);
     this.rests$ = this.restService.getAll().pipe(tap(() => {this.loading = false}));
   }
 }

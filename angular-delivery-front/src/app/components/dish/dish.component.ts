@@ -7,6 +7,17 @@ import {IDish} from "../../models/dish";
 })
 export class ProductComponent {
   @Input() dish: IDish
-
+  count: number = 0
   details = false
+
+  incCount() {
+    if (this.dish.amount >= this.count + 1) {
+      this.count++;
+    }
+  }
+  decCount() {
+    if (0 <= this.count - 1) {
+      this.count--;
+    }
+  }
 }

@@ -15,7 +15,7 @@ export class DishService {
   }
 
   getAllFromRest(restaurantId: number): Observable<IDish[]> {
-    return this.http.get<IDish[]>(`http://localhost:8080/api/user/restaurants/${restaurantId}/dish`)
+    return this.http.get<IDish[]>(`http://localhost:8080/api/public/restaurants/${restaurantId}/dish`)
       .pipe(
         retry(2),
         catchError(this.errorHandler.bind(this))
@@ -23,7 +23,7 @@ export class DishService {
   }
 
   getSliceFromRest(restaurantId: number, limit: number, skip: number): Observable<IDish[]> {
-    return this.http.get<IDish[]>(`http://localhost:8080/api/user/restaurants/${restaurantId}/dish`, {
+    return this.http.get<IDish[]>(`http://localhost:8080/api/public/restaurants/${restaurantId}/dish`, {
       params: new HttpParams({
         fromObject: {
           limit: limit,

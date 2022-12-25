@@ -18,16 +18,19 @@
 
   <div class="
     display: flex;
+    mt-2
   ">
     <button
-      class="rounded-full bg-yellow-400 text-white p-3 ml-auto mr-auto h-[30px] w-[30px] position-center"
-    >+</button>
+      class="rounded-full bg-yellow-400 text-white p-3"
+      (click)="decCount()"
+    > - </button>
     <span
       class="p-3"
-    >TODO - count</span>
+    >{{ count }}</span>
     <button
       class="rounded-full bg-yellow-400 text-white p-3"
-    >-</button>
+      (click)="incCount()"
+    > + </button>
   </div>
 
 </div>

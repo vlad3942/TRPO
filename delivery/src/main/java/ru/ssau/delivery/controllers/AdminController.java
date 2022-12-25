@@ -7,7 +7,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.ssau.delivery.models.*;
 import ru.ssau.delivery.pojo.MessageResponse;
+import ru.ssau.delivery.pojo.RegisterCourierRequest;
 import ru.ssau.delivery.pojo.SignupRequest;
+import ru.ssau.delivery.repository.CourierRepository;
 import ru.ssau.delivery.repository.RestaurantRepository;
 import ru.ssau.delivery.repository.RoleRepository;
 import ru.ssau.delivery.repository.UserRepository;
@@ -26,9 +28,9 @@ public class AdminController {
     private final RoleRepository roleRepository;
     private final RestaurantRepository restaurantRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CourierRepository courierRepository;
 
 
-    //TODO: добавить связанную сущьность для владельца рестарана при регистрации
     @PostMapping("/register/restaurant-owner")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
 
@@ -78,6 +80,48 @@ public class AdminController {
         r.setIsConfirmed(isConfirmed);
         restaurantRepository.save(r);
         return ResponseEntity.ok(new MessageResponse("Restaurant with id: " + id + " was successfully confirmed."));
+    }
+
+    @PostMapping("/register/courier")
+    public ResponseEntity<?> registerCourier(@RequestBody RegisterCourierRequest request) {
+        if (userRepository.existsByUsername(request.getUserData().getUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Username is exist"));
+        }
+
+        if (userRepository.existsByEmail(request.getUserData().getEmail())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is exist"));
+        }
+
+        if (userRepository.existsByPhone(request.getUserData().getPhone())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Phone number is exist"));
+        }
+
+        User user = new User(
+                request.getUserData().getUsername(),
+                request.getUserData().getEmail(),
+                request.getUserData().getPhone(),
+                passwordEncoder.encode(request.getUserData().getPassword()));
+
+        Role userRole = roleRepository
+                .findByName(ERole.ROLE_COURIER)
+                .orElseThrow(() -> new RuntimeException("Error, Role COURIER is not found"));
+        Set<Role> roles = Collections.singleton(userRole);
+        user.setRoles(roles);
+        user = userRepository.saveAndFlush(user);
+        Courier courier = new Courier();
+        courier.setUser(user);
+        courier.setName(request.getCourierInfo().getName());
+        courier.setForNotes(request.getCourierInfo().getForNotes());
+        courier.setPassportDetails(request.getCourierInfo().getPassportDetails());
+        courier.setIsFree(true);
+        courierRepository.saveAndFlush(courier);
+        return ResponseEntity.ok(new MessageResponse("Courier was successfully CREATED"));
     }
 }
 
