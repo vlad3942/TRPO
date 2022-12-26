@@ -10,12 +10,11 @@ import {RestaurantService} from "../../services/restaurant.service";
 export class RestaurantComponent implements OnInit{
   @Input() rest: IRest
 
-  openDate: Date
-  closeDate: Date
+  public openDate: Date
+  public closeDate: Date
 
   constructor(public restService: RestaurantService) {
   }
-  details = false
 
   ngOnInit(): void {
     console.log(this.rest);

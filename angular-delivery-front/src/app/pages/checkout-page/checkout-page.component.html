@@ -1,0 +1,55 @@
+<div class="container" *ngIf="dishes.length else alter">
+  <h2 class="text-center">Оформление зака</h2>
+
+  <app-dishes-table [dishes]="dishes"></app-dishes-table>
+
+  <form class="card-container" [formGroup]="form" (ngSubmit)="submit()">
+
+    <div
+      class="form-control"
+    >
+      <label for="deliveryAddress">Адрес доставки: </label>
+      <input class="border" id="deliveryAddress" type="text" formControlName="deliveryAddress">
+      <div
+        *ngIf="deliveryAddress.touched && deliveryAddress.invalid"
+      >
+        <small class="text-red-600" *ngIf="deliveryAddress.errors?.required else unexpected">
+          Поле <strong>"Адрес доставки"</strong> обязятельно для для заполнения!
+        </small>
+        <ng-template #unexpected>
+          <small class="text-red-600" *ngIf="deliveryAddress.errors">
+            Неизвестная ошибка, пожалуйста повторите попытку оформления заново...
+          </small>
+        </ng-template>
+      </div>
+    </div>
+
+    <div
+      class="form-control"
+    >
+      <label for="comment">Коментарий: </label>
+      <input class="border" id="comment" type="text" formControlName="comment">
+    </div>
+
+    <button
+      type="submit"
+      class="rounded-full bg-yellow-400 text-white p-3"
+    >
+      Оформить заказ
+    </button>
+  </form>
+
+</div>
+
+<ng-template #alter>
+  <h2 class="text-center">Нет товаров для заказа</h2>
+  <a class="rounded border px-5 py-2 bg-yellow-400" routerLink="/">К ресторанам...</a>
+</ng-template>
+
+<div *ngIf="mess.length > 0">
+  <p class="text-center">{{mess}}</p>
+</div>
+
+<div *ngIf="errorMess.length > 0">
+  <p class="text-center text-red-600">{{mess}}</p>
+</div>

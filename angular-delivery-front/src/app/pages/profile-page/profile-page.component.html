@@ -1,0 +1,28 @@
+<div class="container" *ngIf="currentUser; else loggedOut">
+  <header class="jumbotron">
+    <img id="profile-img" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" class="profile-img-card" />
+  </header>
+  <p>
+    <strong>Token:</strong>
+    {{ currentUser.token.substring(0, 20) }} ...
+    {{ currentUser.token.substr(currentUser.token.length - 20) }}
+  </p>
+  <p>
+    <strong>Email:</strong>
+    {{ currentUser.email }}
+  </p>
+  <p>
+    <strong>Имя пользователя:</strong>
+    {{ currentUser.username }}
+  </p>
+  <p>
+    <strong>Телефон:</strong>
+    {{ currentUser.phone }}
+  </p>
+  <strong>Role:</strong>
+  {{ currentUser.roles }}
+</div>
+
+<ng-template #loggedOut>
+  Please login.
+</ng-template>

@@ -1,0 +1,26 @@
+<div class="container">
+  <table>
+    <thead>
+    <tr>
+      <th>№</th>
+      <th>Название</th>
+      <th>Количество</th>
+      <th>Цена</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let dish of dishes; let id = index">
+      <td>{{id + 1}}</td>
+      <td>{{dish.name}}</td>
+      <td>{{dish.amount}}</td>
+      <td>{{dish["price"]}}</td>
+    </tr>
+    <tr *ngIf="!!dishes.length">
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>Общая цена: {{ countPrice() | currency:'RUB' }}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>

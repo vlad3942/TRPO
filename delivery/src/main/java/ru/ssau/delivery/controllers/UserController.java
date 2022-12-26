@@ -6,12 +6,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.ssau.delivery.models.*;
-import ru.ssau.delivery.pojo.CreateOrderRequest;
-import ru.ssau.delivery.pojo.MessageResponse;
-import ru.ssau.delivery.pojo.OrderResponse;
+import ru.ssau.delivery.pojo.*;
 import ru.ssau.delivery.repository.*;
 import ru.ssau.delivery.service.UserService;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +48,7 @@ public class UserController {
     }
 
     @PostMapping("/make-order")
-    public ResponseEntity<MessageResponse> makeOrder(
+    public ResponseEntity<?> makeOrder(
             Authentication authentication,
             @RequestBody CreateOrderRequest request
     ) {
@@ -130,8 +129,7 @@ public class UserController {
         });
         //Добавляем зарезервированные в заказе блюда
         dishesInOrderRepository.saveAllAndFlush(dishesInOrder);
-        return ResponseEntity.ok(new MessageResponse("Order was successfully created."));
-        //return ResponseEntity.ok(new MessageResponse("Order with id: " + orderRes.getId() + " was successfully created."));
+        return ResponseEntity.ok(new CreateOrderResponse(orderRes.getId(), "Order was successfully created."));
     }
 
     @GetMapping("/orders")
@@ -139,5 +137,52 @@ public class UserController {
         User user = userService.obtainUser(authentication);
         List<Order> result = orderRepository.findAllByUser(user);
         return OrderResponse.convert(result);
+    }
+
+    @GetMapping("/orders/{order_id}")
+    public ResponseEntity<?> getOrder(Authentication authentication, @PathVariable("order_id") Long id) {
+        User user = userService.obtainUser(authentication);
+        Order result = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Order with id: " + id));
+        if (!result.getUser().getId().equals(user.getId())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Permission failed"));
+        }
+        List<DishesInOrder> dios = dishesInOrderRepository.findAllByOrderId(result.getId());
+        OrderResponse response = OrderResponse.convert(result);
+        dios.forEach(d -> response.getDishes().add(DishInfo.convert(d)));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/orders/{order_id}/cancel")
+    public ResponseEntity<?> cancelOrder(
+            Authentication authentication,
+            @PathVariable("order_id") Long orderId
+    ) {
+        User user = userService.obtainUser(authentication);
+        Order result = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException("Order with id: " + orderId));
+        if (!result.getUser().getId().equals(user.getId())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Permission failed"));
+        }
+        if (!result.getStatus().getName().equals(EOrderStatus.WAITING_CONFIRMATION)) {
+            return ResponseEntity.badRequest().body(
+                    new MessageResponse("The order cannot be closed because it has already been confirmed.")
+            );
+        }
+        result.setStatus(orderStatusRepository.findByName(EOrderStatus.CANCELED).orElseThrow());
+        orderRepository.saveAndFlush(result);
+        return ResponseEntity.ok(new MessageResponse("Order was successfully canceled."));
+    }
+
+    @GetMapping("/orders/{order_id}/warning")
+    public ResponseEntity<?> warningOrder(
+            Authentication authentication,
+            @PathVariable("order_id") Long orderId
+    ) {
+        User user = userService.obtainUser(authentication);
+        Order result = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException("Order with id: " + orderId));
+        if (!result.getUser().getId().equals(user.getId())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Permission failed"));
+        }
+        result.setStatus(orderStatusRepository.findByName(EOrderStatus.WARNING).orElseThrow());
+        return ResponseEntity.ok(new MessageResponse("Order was successfully warned."));
     }
 }

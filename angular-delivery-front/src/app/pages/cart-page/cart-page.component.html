@@ -1,0 +1,44 @@
+<div *ngIf="dishes.length; else emptyCart">
+  <table>
+    <thead>
+      <tr>
+        <th>№</th>
+        <th>Название</th>
+        <th>Количество</th>
+        <th>Цена</th>
+        <th> </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let dish of dishes; let id = index">
+        <td>{{id + 1}}</td>
+        <td>{{dish.name}}</td>
+        <td>{{dish.amount}}</td>
+        <td>{{dish["price"]}}</td>
+        <td>
+          <button
+            class="border py-1 px-2 rounded bg-yellow-400 text-white"
+            (click)="this.skip(dish.id)"
+          >Удалить</button>
+        </td>
+      </tr>
+      <tr *ngIf="dishes.length">
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>Общая цена: {{ countPrice() | currency:'RUB' }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="
+    display: flex;
+    mt-2
+  ">
+    <button class="border py-2 px-4 rounded bg-yellow-400 text-white" [routerLink]="['/dishes', restId]">К рестарану</button>
+    <button class="border py-2 px-4 rounded bg-yellow-400 text-white" [routerLink]="['/make-order']">Оформить заказ</button>
+  </div>
+</div>
+
+<ng-template #emptyCart>
+  <p class="text-center">Корзина пуста...</p>
+</ng-template>

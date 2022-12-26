@@ -2,12 +2,13 @@
   <h1 class="font-bold">Delivery Service</h1>
 
   <span>
-    <a class="mr-4" routerLink="/">Список ресторанов</a>
-    <a class="mr-4" *ngIf="!isLoggedIn" routerLink="/login">Войти</a>
-    <a class="mr-4" *ngIf="!isLoggedIn" routerLink="/register">Зарегистрироваться</a>
-    <a class="mr-4" *ngIf="isLoggedIn" routerLink="/profile">Профиль</a>
-    <a class="mr-4" *ngIf="isLoggedIn" routerLink="/orders">Список заказов</a>
-    <a class="mr-4" *ngIf="isLoggedIn" (click)="logout()" href="#">Выйти</a>
+    <a class="mr-4" routerLinkActive="activate" routerLink="/restaurants">Список ресторанов</a>
+    <a class="mr-4" routerLinkActive="activate" routerLink="/cart">В корзину</a>
+    <a class="mr-4" *ngIf="!tokenStorageService.getToken()" routerLink="/login">Войти</a>
+    <a class="mr-4" *ngIf="!tokenStorageService.getToken()" routerLink="/register">Зарегистрироваться</a>
+    <a class="mr-4" routerLinkActive="activate" *ngIf="!!tokenStorageService.getToken()" routerLink="/orders">Список заказов</a>
+    <a class="mr-4" routerLinkActive="activate" *ngIf="!!tokenStorageService.getToken()" routerLink="/profile">Профиль</a>
+    <a class="mr-4" *ngIf="!!tokenStorageService.getToken()" (click)="logout()" href="#">Выйти</a>
 
 
 <!--    <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn">-->

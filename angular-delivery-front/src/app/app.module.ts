@@ -20,6 +20,12 @@ import {SearchRestaurantPipe} from "./pipes/search-restaurant.pipe";
 import {LoginPageComponent} from "./pages/login-page/login-page.component";
 import { NavigationComponent } from './components/navigation/navigation.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
+import { CartPageComponent } from './pages/cart-page/cart-page.component';
+import { ProfilePageComponent } from './pages/profile-page/profile-page.component';
+import { OrdersPageComponent } from './pages/orders-page/orders-page.component';
+import { CheckoutPageComponent } from './pages/checkout-page/checkout-page.component';
+import { DishesTableComponent } from './components/dishes-table/dishes-table.component';
+import { OrderPageComponent } from './pages/order-page/order-page.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +42,13 @@ import { RegisterPageComponent } from './pages/register-page/register-page.compo
     SearchRestaurantPipe,
     LoginPageComponent,
     NavigationComponent,
-    RegisterPageComponent
+    RegisterPageComponent,
+    CartPageComponent,
+    ProfilePageComponent,
+    OrdersPageComponent,
+    CheckoutPageComponent,
+    DishesTableComponent,
+    OrderPageComponent
   ],
   imports: [
     BrowserModule,

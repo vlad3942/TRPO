@@ -1,4 +1,4 @@
-<h1 class="font-bold mb-2 text-center text-lg">{{ title | titlecase }}</h1>
+<h1 class="font-bold mb-2 text-center text-lg"><strong>Ресторан: </strong> {{ restName | titlecase }}</h1>
 
 <input
   type="text"
@@ -10,18 +10,18 @@
 <p *ngIf="loading" class="text-center text-lg">Loading...</p>
 
 <div *ngIf="dishes$ | async as dishes">
-  <app-dish *ngFor="let dish of dishes | searchDish:term" [dish] = "dish"
+  <app-dish *ngFor="let dish of dishes | searchDish:term" [dish] = "dish" [restId]="restaurantId"
   ></app-dish>
 </div>
 
-<app-modal
-  *ngIf="modalService.isVisible$ | async"
-  title="Добавить новое блюдо"
->
-  <app-create-dish></app-create-dish>
-</app-modal>
+<!--<app-modal-->
+<!--  *ngIf="modalService.isVisible$ | async"-->
+<!--  title="Добавить новое блюдо"-->
+<!--&gt;-->
+<!--  <app-create-dish></app-create-dish>-->
+<!--</app-modal>-->
 
-<button
-  class="rounded-full bg-red-700 text-white fixed right-5 bottom-5 py-2 px-4"
-  (click)="modalService.open()"
->+</button>
+<!--<button-->
+<!--  class="rounded-full bg-red-700 text-white fixed right-5 bottom-5 py-2 px-4"-->
+<!--  (click)="modalService.open()"-->
+<!--&gt;+</button>-->

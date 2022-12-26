@@ -1,11 +1,11 @@
 package ru.ssau.delivery.pojo;
 
-import lombok.Value;
+import lombok.Data;
 
-@Value
+@Data
 public class CreateDishRequest {
-    String name;
-    String description;
-    Integer amount;
-    Double price;
+    private String name;
+    private String description;
+    private Integer amount;
+    private Double price;
 }

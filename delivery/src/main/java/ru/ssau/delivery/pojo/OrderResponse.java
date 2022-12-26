@@ -3,6 +3,7 @@ package ru.ssau.delivery.pojo;
 import lombok.Data;
 import ru.ssau.delivery.models.Order;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ public class OrderResponse {
     private String deliveryAddress;
     private Double totalPrice;
     private String comment;
+    private OffsetDateTime created;
     private List<DishInfo> dishes = new ArrayList<>();
 
     @Data
@@ -39,7 +41,7 @@ public class OrderResponse {
         return orders.stream().map(OrderResponse::convert).collect(Collectors.toList());
     }
 
-    private static OrderResponse convert(Order order) {
+    public static OrderResponse convert(Order order) {
         OrderResponse response = new OrderResponse();
         response.setId(order.getId());
         response.setComment(order.getComment());
@@ -47,6 +49,7 @@ public class OrderResponse {
         response.setTotalPrice(order.getTotalPrice());
         response.setUserId(order.getUser().getId());
         response.setStatus(order.getStatus().getName().toString());
+        response.setCreated(order.getCreatedDate());
         var restInfo = new RestaurantInfo();
         restInfo.id = order.getRestaurant().getId();
         restInfo.name = order.getRestaurant().getName();

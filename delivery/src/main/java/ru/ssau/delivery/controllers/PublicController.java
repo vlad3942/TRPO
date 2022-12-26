@@ -7,6 +7,7 @@ import ru.ssau.delivery.models.Restaurant;
 import ru.ssau.delivery.repository.DishRepository;
 import ru.ssau.delivery.repository.RestaurantRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @RestController
@@ -23,6 +24,13 @@ public class PublicController {
             @RequestParam(name = "skip", defaultValue = "0") int skip
     ) {
         return restaurantRepository.getOpenedLimitedRestaurants(skip, limit);
+    }
+
+    @GetMapping("/restaurants/{rest_id}")
+    public Restaurant getRestaurant(
+            @PathVariable("rest_id") Long id
+    ) {
+        return restaurantRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Restaurant with id: " + id + " was not found."));
     }
 
     @GetMapping("/restaurants/{rest_id}/dish")

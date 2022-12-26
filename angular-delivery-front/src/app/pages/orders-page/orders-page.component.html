@@ -1,0 +1,36 @@
+<div *ngIf="orders.length; else emptyOrders">
+  <table>
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Статус</th>
+      <th>Дата заказа</th>
+      <th>Адрес доставки</th>
+      <th>Ресторан</th>
+      <th>Цена заказа</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let order of orders; let id = index">
+      <td>{{order.id}}</td>
+      <td>{{orderService.getStatusMessage(order.status)}}</td>
+      <td>{{getDate(order.created * 1000) | date:'medium'}}</td>
+      <td>{{order.deliveryAddress}}</td>
+      <td>{{order.restaurant.name}}</td>
+      <td>{{order.totalPrice | currency: 'RUB ' }}</td>
+      <td>
+        <button
+          class="px-1 py-2 border"
+          [routerLink]="['/order', order.id]"
+        >
+          Детали
+        </button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<ng-template #emptyOrders>
+  <p class="text-center">У вас нет ни одного заказа...</p>
+</ng-template>

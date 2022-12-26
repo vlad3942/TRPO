@@ -10,10 +10,10 @@
       'bg-blue-400': details
     }"
     (click)="details = !details"
-  > {{ details ? 'Скрыть' : 'Показать' }} детали</button>
+  > Описание</button>
 
   <div *ngIf="details">
-    <p> <span class="font-bold">Описание: </span> {{ dish.description }}</p>
+    <p> {{ dish.description }}</p>
   </div>
 
   <div class="

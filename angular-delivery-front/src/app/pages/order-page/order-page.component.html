@@ -1,0 +1,32 @@
+<div
+  class="container"
+  *ngIf="orderId > 0 && !!order else message"
+>
+  <h1 class="text-center"><strong>Заказ номер:</strong> {{orderId}}</h1>
+  <h2><strong>Статус:</strong> {{orderService.getStatusMessage(order.status)}}</h2>
+  <h3>Список блюд в заказе:</h3>
+  <app-dishes-table [dishes]="order.dishes"></app-dishes-table>
+  <p>Дата создания: {{ getDate(order.created * 1000) | date: 'medium' }}</p>
+  <p>Оплачено: {{order.totalPrice | currency: 'RUB '}}</p>
+  <p>Рестаран: {{order.restaurant.name}}</p>
+  <p *ngIf="!!order.courier">Курьер: {{order.courier.name}}</p>
+  <p>Адрес доставки: {{order.deliveryAddress}}</p>
+  <p>Комментарий к заказу: {{order.comment}}</p>
+  <div class="flex">
+    <button class="px-1 py-2 border ml-2" (click)="cancelOrder()" [disabled]="cancelDisable">Отменить</button>
+    <button class="px-1 py-2 border ml-2" (click)="warnOrder()" [disabled]="warnDisable">Открыть спор</button>
+  </div>
+</div>
+
+<ng-template #message>
+  <div *ngIf="!error else errorMessage">
+    <small class="text-center">
+      Загрузка...
+    </small>
+  </div>
+  <ng-template #errorMessage>
+    <small class="text-center text-red-600">
+      Выбранного заказа не существует.
+    </small>
+  </ng-template>
+</ng-template>

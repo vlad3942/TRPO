@@ -1,13 +1,13 @@
 package ru.ssau.delivery.pojo;
 
-import lombok.Value;
+import lombok.Data;
 
 import java.time.OffsetDateTime;
 
-@Value
+@Data
 public class CreateRestaurantRequest {
-    String restaurantName;
-    String address;
-    OffsetDateTime openTime;
-    OffsetDateTime closeTime;
+    private String restaurantName;
+    private String address;
+    private OffsetDateTime openTime;
+    private OffsetDateTime closeTime;
 }

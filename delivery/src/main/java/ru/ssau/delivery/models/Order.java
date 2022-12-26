@@ -3,6 +3,7 @@ package ru.ssau.delivery.models;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.OffsetDateTime;
 
 @Data
 @Entity
@@ -35,4 +36,5 @@ public class Order {
     //Заполняется рестараном, принявшим заказ
     private Integer timeToCook; //minutes
     private String comment;
+    private OffsetDateTime createdDate = OffsetDateTime.now();
 }
